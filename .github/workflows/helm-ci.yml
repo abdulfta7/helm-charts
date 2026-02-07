@@ -19,18 +19,63 @@ jobs:
         with:
           version: v3.12.0
 
-      # 3️⃣ Verify required files
-      - name: Verify devops-app folder exists
+      # 3️⃣ Verify required files and structure
+      - name: Verify devops-app folder and files
         run: |
+          echo "Verifying devops-app structure..."
+          
+          # Check if devops-app folder exists
           if [ ! -d "devops-app" ]; then
-            echo "Folder devops-app does not exist!"
+            echo "❌ Folder devops-app does not exist!"
             exit 1
           fi
+          echo "✅ devops-app folder exists"
+          
+          # Check if Chart.yaml exists
           if [ ! -f "devops-app/Chart.yaml" ]; then
-            echo "Chart.yaml missing!"
+            echo "❌ Chart.yaml missing!"
             exit 1
           fi
-          echo "All required files exist ✅"
+          echo "✅ Chart.yaml exists"
+          
+          # Check if values.yaml exists
+          if [ ! -f "devops-app/values.yaml" ]; then
+            echo "❌ values.yaml missing!"
+            exit 1
+          fi
+          echo "✅ values.yaml exists"
+          
+          # Check if templates directory exists
+          if [ ! -d "devops-app/templates" ]; then
+            echo "❌ templates directory missing!"
+            exit 1
+          fi
+          echo "✅ templates directory exists"
+          
+          # Count YAML files in templates
+          template_count=$(find devops-app/templates -type f -name "*.yaml" | wc -l)
+          if [ $template_count -eq 0 ]; then
+            echo "❌ No YAML templates found in templates directory!"
+            exit 1
+          fi
+          echo "✅ Found $template_count template files"
+          
+          # Validate Chart.yaml structure
+          if ! grep -q "^apiVersion:" devops-app/Chart.yaml; then
+            echo "❌ Chart.yaml missing apiVersion!"
+            exit 1
+          fi
+          echo "✅ Chart.yaml has valid structure"
+          
+          # Validate values.yaml is valid YAML
+          if ! python3 -c "import yaml; yaml.safe_load(open('devops-app/values.yaml'))" 2>/dev/null; then
+            echo "❌ values.yaml is not valid YAML!"
+            exit 1
+          fi
+          echo "✅ values.yaml is valid YAML"
+          
+          echo ""
+          echo "All verifications passed! ✅"
 
       # 4️⃣ Lint Helm chart
       - name: Helm Lint
