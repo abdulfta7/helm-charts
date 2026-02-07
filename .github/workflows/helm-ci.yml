@@ -2,7 +2,7 @@ name: Helm CI Pipeline-2
 
 on:
   push:
-    branches: [dev]
+    branches: [main]
 
 jobs:
   verify-and-lint:
