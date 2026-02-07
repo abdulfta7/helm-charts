@@ -1,4 +1,4 @@
-name: Helm CI Pipeline
+name: Helm CI Pipeline-2
 
 on:
   push:
