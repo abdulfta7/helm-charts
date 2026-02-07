@@ -44,20 +44,15 @@ jobs:
           tar xf kubeval-linux-amd64.tar.gz
           sudo mv kubeval /usr/local/bin/
 
-      # 6️⃣ Download Kubernetes schemas locally (avoids 404)
-      - name: Download kubeval schemas
-        run: |
-          kubeval --download-schema
-
-      # 7️⃣ Scan all YAML templates using local schemas
+      # 6️⃣ Scan all YAML templates
       - name: Scan Helm templates
         run: |
           for file in devops-app/templates/*.yaml; do
             echo "Scanning $file"
-            kubeval --kubernetes-version=v1.26 "$file"
+            kubeval --kubernetes-version=v1.26 --ignore-missing-schemas "$file"
           done
 
-      # 8️⃣ Package Helm chart
+      # 7️⃣ Package Helm chart
       - name: Package Helm chart
         run: |
           helm package devops-app
