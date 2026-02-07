@@ -1,4 +1,4 @@
-name: Helm CI Pipeline
+nname: Helm CI Pipeline
 
 on:
   push:
@@ -37,26 +37,26 @@ jobs:
         run: |
           helm lint devops-app
 
-      # 5️⃣ Install kubeval (required for YAML validation)
+      # 5️⃣ Install kubeval
       - name: Install kubeval
         run: |
-          set -e
-          echo "Installing kubeval..."
-          curl -sL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz -o kubeval.tar.gz
-          tar xzf kubeval.tar.gz
-          sudo mv kubeval /usr/local/bin/
-          sudo chmod +x /usr/local/bin/kubeval
-          kubeval --version
+          sudo apt-get update
+          sudo apt-get install -y kubeval
 
-      # 6️⃣ Scan all YAML templates with kubeval
+      # 6️⃣ Download Kubernetes schemas locally (avoids 404)
+      - name: Download kubeval schemas
+        run: |
+          kubeval --download-schema
+
+      # 7️⃣ Scan all YAML templates using local schemas
       - name: Scan Helm templates
         run: |
           for file in devops-app/templates/*.yaml; do
             echo "Scanning $file"
-            kubeval "$file"
+            kubeval --kubernetes-version=v1.26 "$file"
           done
 
-      # 6️⃣ Optional: Package Helm chart
+      # 8️⃣ Package Helm chart
       - name: Package Helm chart
         run: |
           helm package devops-app
