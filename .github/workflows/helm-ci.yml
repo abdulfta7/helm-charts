@@ -1,0 +1,53 @@
+name: Helm CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Install Helm
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      # 3️⃣ Verify required files
+      - name: Verify devops-app folder exists
+        run: |
+          if [ ! -d "devops-app" ]; then
+            echo "Folder devops-app does not exist!"
+            exit 1
+          fi
+          if [ ! -f "devops-app/Chart.yaml" ]; then
+            echo "Chart.yaml missing!"
+            exit 1
+          fi
+          echo "All required files exist ✅"
+
+      # 4️⃣ Lint Helm chart
+      - name: Helm Lint
+        run: |
+          helm lint devops-app
+
+      # 5️⃣ Scan all YAML templates with kubeval
+      - name: Scan Helm templates
+        run: |
+          for file in devops-app/templates/*.yaml; do
+            echo "Scanning $file"
+            kubeval "$file"
+          done
+
+      # 6️⃣ Optional: Package Helm chart
+      - name: Package Helm chart
+        run: |
+          helm package devops-app
