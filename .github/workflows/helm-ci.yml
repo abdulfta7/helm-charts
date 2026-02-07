@@ -3,8 +3,6 @@ name: Helm CI Pipeline
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   lint-and-scan:
@@ -39,7 +37,18 @@ jobs:
         run: |
           helm lint devops-app
 
-      # 5️⃣ Scan all YAML templates with kubeval
+      # 5️⃣ Install kubeval (required for YAML validation)
+      - name: Install kubeval
+        run: |
+          set -e
+          echo "Installing kubeval..."
+          curl -sL https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz -o kubeval.tar.gz
+          tar xzf kubeval.tar.gz
+          sudo mv kubeval /usr/local/bin/
+          sudo chmod +x /usr/local/bin/kubeval
+          kubeval --version
+
+      # 6️⃣ Scan all YAML templates with kubeval
       - name: Scan Helm templates
         run: |
           for file in devops-app/templates/*.yaml; do
