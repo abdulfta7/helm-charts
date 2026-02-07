@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: {{ .Values.namespaces.frontend }}
+  labels:
+    {{- include "devops-app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      {{- if .Values.imageCredentials.enabled }}
+      imagePullSecrets:
+      - name: {{ .Values.imageCredentials.name }}
+      {{- end }}
+      containers:
+      - name: frontend
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.frontend.resources | nindent 12 }}
+        ports:
+        - containerPort: 80

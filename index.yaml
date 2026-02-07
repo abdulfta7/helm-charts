@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  devops-app:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-02-07T10:42:06.772792321+02:00"
+    description: A Helm chart for the DevOps Team Manager application with Frontend,
+      Backend, PostgreSQL, and Redis
+    digest: 4a112dfdb3f2c3768f27a9f27c9517de4f7f29aaa70b2ff444d04770a6097c30
+    name: devops-app
+    type: application
+    urls:
+    - devops-app-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-02-07T10:42:06.771743103+02:00"
